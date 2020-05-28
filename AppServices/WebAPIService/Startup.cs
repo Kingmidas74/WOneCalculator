@@ -11,7 +11,6 @@ using Newtonsoft.Json.Converters;
 using Serilog;
 using WebAPIService.Middleware;
 using WebAPIService.Models;
-using MessageBusServices;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Prometheus;
 using Masking.Serilog;
@@ -44,13 +43,11 @@ namespace WebAPIService
             var applicationOptions = new WebAPIService.Models.ApplicationOptions ();
             Configuration.GetSection (nameof (WebAPIService.Models.ApplicationOptions)).Bind (applicationOptions);            
             
-            services.AddSwagger ();
+            services.AddSwagger (applicationOptions.IdentityServiceURI);
             services.AddAuth (applicationOptions.IdentityServiceURI);            
             services.AddSQL (Configuration.GetConnectionString ("DefaultConnection"));
-            services.AddQueueService (applicationOptions.RabbitMQSeriveURI);
             services.AddBusinessServices();
 
-            services.AddSingleton<MetricReporter>();
 
             services.AddControllers ()
                 .AddNewtonsoftJson (options => {
@@ -69,27 +66,23 @@ namespace WebAPIService
 
         public void Configure (IApplicationBuilder app, IApiVersionDescriptionProvider provider) {
             Log.Logger = new LoggerConfiguration ().ReadFrom.Configuration (Configuration)
-                                .Destructure.ByMaskingProperties("Password", "Token")
-                                .WriteTo.Seq(System.Environment.GetEnvironmentVariable(nameof(Models.EnvironmentVariables.SeqURL)))
+                                .Destructure.ByMaskingProperties("Password", "Token")                             
                                 .CreateLogger();
             
             app.UseMiddleware<RequestResponseLoggingMiddleware> ();
-            app.UseMiddleware<ResponseMetricMiddleware>();
-            app.UseMiddleware<CountRequestMiddleware>();
             
             app.UseStaticFiles();            
 
             app.UseCors (nameof (CorsPolicy));
-            app.UseMetricServer(); 
             app.UseCustomExceptionHandler();
-            app.UseHttpMetrics();
-            app.UseDeveloperExceptionPage();  
+            //app.UseDeveloperExceptionPage();  
             app.UseSwagger ();
             app.UseSwaggerUI (c => {
                 foreach ( var description in provider.ApiVersionDescriptions )
                 {
                     c.SwaggerEndpoint ($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                    c.RoutePrefix = "swagger";                    
+                    c.RoutePrefix = "swagger";   
+                    c.OAuthClientId("application_local");                 
                 }
                 
             });

@@ -8,39 +8,12 @@ namespace DataAccess {
     public class APIContext : DbContext,IAPIContext {
         private string SchemaName { get; set; } = "public";
 
-        public DbSet<Parent> Parents { get; set; }
-        public DbSet<Child> Children { get; set; }
+        public DbSet<OperationHistory> OperationHistory { get; set; }
         public APIContext (DbContextOptions<APIContext> options) : base (options) { }
 
         protected override void OnModelCreating (ModelBuilder modelBuilder) {
             modelBuilder.HasDefaultSchema (schema: SchemaName);
-
-            modelBuilder.Entity<EntityStatus> (entity => {
-                entity.HasData (
-                    Enum.GetValues (typeof (EntityStatusId))
-                    .Cast<EntityStatusId> ()
-                    .Select (e => new EntityStatus () {
-                        EntityStatusId = e,
-                            Value = e.ToString ()
-                    })
-                );
-            });
-            
-            modelBuilder.Entity<Parent> (entity => {
-                entity.HasKey (x => x.Id);
-                entity.Property (e => e.Status)
-                    .HasConversion<int> ();
-            });
-
-            modelBuilder.Entity<Child> (entity => {
-                entity.Property ($"{nameof(Parent)}{nameof(Parent.Id)}");
-                entity.Property (e => e.Status)
-                    .HasConversion<int> ();
-                entity.HasOne (c => c.Parent)
-                    .WithMany (c => c.Children)
-                    .HasForeignKey ($"{nameof(Parent)}{nameof(Parent.Id)}");
-            });
-
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(APIContext).Assembly);
             base.OnModelCreating (modelBuilder);
         }
 

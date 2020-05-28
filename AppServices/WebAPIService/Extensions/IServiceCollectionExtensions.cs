@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -17,13 +18,17 @@ namespace WebAPIService
                 .AddJwtBearer ("Bearer", options => {
                     options.Authority = identityServerURI;
                     options.RequireHttpsMetadata = false;
-
-                    options.Audience = "phrygiawebapi offline_access";
+                    
+                    options.Audience = "wonewebapi";
                 });
             return services;
         }
-        public static IServiceCollection AddSwagger (this IServiceCollection services) {
-
+        public static IServiceCollection AddSwagger (this IServiceCollection services, string connectionString) 
+        {
+            var identityServerURI = string.Format (connectionString, 
+                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_HOST)), 
+                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_PORT)));
+            
             services.AddApiVersioning(options => {
                 options.ReportApiVersions=true;
                 options.AssumeDefaultVersionWhenUnspecified=false;
@@ -57,12 +62,43 @@ namespace WebAPIService
                 }  
 
                 c.AddSecurityDefinition ("Bearer", new OpenApiSecurityScheme {
+
                     In = ParameterLocation.Header,
-                        Description = "Please insert JWT with Bearer into field",
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.ApiKey
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        Implicit = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri($"{identityServerURI}connect/authorize", UriKind.Absolute),
+                            TokenUrl = new Uri($"{identityServerURI}connect/token", UriKind.Absolute),
+                            Scopes = new Dictionary<string, string>
+                            {
+                                { "wonewebapi", "Access " }
+                            }                           
+                        }                        
+                    }
                 });
 
+/*
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OpenIdConnect,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        Implicit = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri($"{identityServerURI}connect/authorize", UriKind.Absolute),
+                            TokenUrl = new Uri($"{identityServerURI}connect/token", UriKind.Absolute),
+                            Scopes = new Dictionary<string, string>
+                            {
+                                { "wonewebapi offline_access", "Access " }
+                            }                            
+                        }                        
+                    }
+                });
+*/
                 c.AddSecurityRequirement (new OpenApiSecurityRequirement {
                     {
                         new OpenApiSecurityScheme {
@@ -74,7 +110,18 @@ namespace WebAPIService
                         new string[] { }
                     }
                 });
-  
+/*
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+                        },
+                        new[] { "wonewebapi", "offline_access" }
+                    }
+                });
+  */
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments (xmlPath);

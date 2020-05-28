@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BusinessServices.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -20,7 +21,7 @@ namespace WebAPIService
                     var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
                     var exception = errorFeature.Error;
                     (string content, int code) = exception switch {
-                        ClientValidationException e when exception is ClientValidationException => (JsonConvert.SerializeObject(e.Messages), StatusCodes.Status400BadRequest),
+                        BusinessValidationException e when exception is BusinessValidationException => (JsonConvert.SerializeObject(e.Properties), StatusCodes.Status400BadRequest),
                         _ => (JsonConvert.SerializeObject(new Dictionary<string,object> {
                                 {"Processing error","Contact to tech support"}
                             }), StatusCodes.Status500InternalServerError)

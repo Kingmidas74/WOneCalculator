@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DataAccess {
     public interface IAPIContext 
     {
-        DbSet<Parent> Parents { get; }
-        DbSet<Child> Children { get; }
+        DbSet<OperationHistory> OperationHistory { get; }
 
         int SaveChanges();
         Task<int> SaveChangesAsync();

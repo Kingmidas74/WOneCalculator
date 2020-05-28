@@ -31,12 +31,12 @@ namespace IdentityService {
             services.Configure<ApplicationOptions> (Configuration.GetSection (nameof(ApplicationOptions)));            
             services.AddTransient<UtilsService>();
             services.AddSwagger();
-            services.AddSingleton<MetricReporter>();
             services.AddSQL(Configuration.GetConnectionString ("DefaultConnection"));
             services.AddMediatR(typeof(Startup));
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly);    
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
+            
             services
                 .AddIdentityServer (x => {
                     x.IssuerUri = System.Environment.GetEnvironmentVariable (nameof (EnvironmentVariables.PIS_DB_HOST));
@@ -78,8 +78,6 @@ namespace IdentityService {
                                 .CreateLogger ();
             
             app.UseMiddleware<RequestResponseLoggingMiddleware> ();
-            app.UseMiddleware<ResponseMetricMiddleware>();
-            app.UseMiddleware<CountRequestMiddleware>();
 
             app.UseCors (nameof (CorsPolicy));
             app.UseMetricServer(); 

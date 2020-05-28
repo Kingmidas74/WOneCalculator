@@ -37,7 +37,6 @@ namespace IdentityService
 
             context.Result = new GrantValidationResult (userPhone, GrantType, new List<Claim> {
                 new Claim ("userId", result.Id.ToString ()),
-                new Claim ("userEmail", result.Email),
                 new Claim ("userPhone", result.Phone),
             });
             return;

@@ -22,7 +22,7 @@ namespace IdentityService.CQRS
         {
             Guid result;
             var code = this.Utils.GenerateCode(Options.LowerBoundCode, Options.UpperBoundCode);
-            var identityExist = await IdentityDBContext.Identities.FirstOrDefaultAsync(u=>u.Email.Equals(request.Email) || u.Phone.Equals(request.Phone));            
+            var identityExist = await IdentityDBContext.Identities.FirstOrDefaultAsync(u=>u.Phone.Equals(request.Phone));            
             if(identityExist!=null)
             {                
                 identityExist.Code=code;                
@@ -33,7 +33,6 @@ namespace IdentityService.CQRS
                 
                 var identity = new Identity {
                     Id=request.Id,
-                    Email = request.Email,
                     Phone = request.Phone,
                     Salt = salt,
                     Password = this.Utils.HashedPassword(request.Phone,request.Password,salt,Options.Pepper),

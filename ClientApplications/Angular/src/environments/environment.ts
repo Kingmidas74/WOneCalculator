@@ -8,7 +8,7 @@ export const environment = {
     URL: 'http://localhost:5000',
     user: {
       grantType: 'custom',
-      scope: 'phrygiawebapi offline_access',
+      scope: 'wonewebapi offline_access',
       clientId: 'personal_local',
       secret: 'secret'
     }
