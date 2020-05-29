@@ -22,8 +22,6 @@ namespace IdentityService.Middleware {
         public async Task Invoke (HttpContext context) {            
             if(!context.Request.Path.Value.Contains("api")) {
                 await _next(context);
-                var text2 = await new StreamReader (context.Response.Body).ReadToEndAsync();
-
                 return;
             }
             var scopeId = Guid.NewGuid();

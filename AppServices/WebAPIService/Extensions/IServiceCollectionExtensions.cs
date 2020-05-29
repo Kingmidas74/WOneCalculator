@@ -19,15 +19,15 @@ namespace WebAPIService
                     options.Authority = identityServerURI;
                     options.RequireHttpsMetadata = false;
                     
-                    options.Audience = "wonewebapi";
+                    options.Audience = "phrygiawebapi";
                 });
             return services;
         }
         public static IServiceCollection AddSwagger (this IServiceCollection services, string connectionString) 
         {
             var identityServerURI = string.Format (connectionString, 
-                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_HOST)), 
-                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_PORT)));
+                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_HOST_EXT)), 
+                            System.Environment.GetEnvironmentVariable (nameof (WebAPIService.Models.EnvironmentVariables.PIS_PORT_EXT)));
             
             services.AddApiVersioning(options => {
                 options.ReportApiVersions=true;
@@ -69,36 +69,18 @@ namespace WebAPIService
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new OpenApiOAuthFlow
+                        ClientCredentials = new OpenApiOAuthFlow
                         {
                             AuthorizationUrl = new Uri($"{identityServerURI}connect/authorize", UriKind.Absolute),
                             TokenUrl = new Uri($"{identityServerURI}connect/token", UriKind.Absolute),
                             Scopes = new Dictionary<string, string>
                             {
-                                { "wonewebapi", "Access " }
+                                { "phrygiawebapi", "Access " }
                             }                           
                         }                        
                     }
                 });
 
-/*
-                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OpenIdConnect,
-                    Flows = new OpenApiOAuthFlows
-                    {
-                        Implicit = new OpenApiOAuthFlow
-                        {
-                            AuthorizationUrl = new Uri($"{identityServerURI}connect/authorize", UriKind.Absolute),
-                            TokenUrl = new Uri($"{identityServerURI}connect/token", UriKind.Absolute),
-                            Scopes = new Dictionary<string, string>
-                            {
-                                { "wonewebapi offline_access", "Access " }
-                            }                            
-                        }                        
-                    }
-                });
-*/
                 c.AddSecurityRequirement (new OpenApiSecurityRequirement {
                     {
                         new OpenApiSecurityScheme {
@@ -107,21 +89,10 @@ namespace WebAPIService
                                     Id = "Bearer"
                             }
                         },
-                        new string[] { }
+                        new string[] { "phrygiawebapi"}
                     }
                 });
-/*
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-                        },
-                        new[] { "wonewebapi", "offline_access" }
-                    }
-                });
-  */
+
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments (xmlPath);

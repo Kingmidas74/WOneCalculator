@@ -19,6 +19,7 @@ namespace IdentityService.CQRS
             
             await IdentityDBContext.Users.AddAsync(new User {
                 Id=identity.Id,
+                Email=identity.Email,
                 Password=identity.Password,
                 Phone=identity.Phone,
                 Salt=identity.Salt                        

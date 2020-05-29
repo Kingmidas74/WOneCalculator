@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.CQRS
 {
-    public class FindUserByPhoneHandler : IRequestHandler<FindUserByPhoneAndPasswordQuery, User>
+    public class FindUserByPhoneAndEmailHandler : IRequestHandler<FindUserByPhoneAndPasswordQuery, User>
     {
         private readonly AppDbContext IdentityDBContext;
 
-        public FindUserByPhoneHandler(AppDbContext identityDBContext)
+        public FindUserByPhoneAndEmailHandler(AppDbContext identityDBContext)
         {
             this.IdentityDBContext = identityDBContext;
         }

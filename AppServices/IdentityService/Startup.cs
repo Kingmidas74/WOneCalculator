@@ -36,7 +36,6 @@ namespace IdentityService {
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly);    
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
-            
             services
                 .AddIdentityServer (x => {
                     x.IssuerUri = System.Environment.GetEnvironmentVariable (nameof (EnvironmentVariables.PIS_DB_HOST));

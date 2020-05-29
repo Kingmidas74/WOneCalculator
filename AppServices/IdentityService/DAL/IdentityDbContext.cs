@@ -11,6 +11,7 @@ namespace IdentityService {
 
     public class User {
         public Guid Id { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
         public string Salt { get; set; }
         public string Phone { get; set; }
@@ -18,6 +19,7 @@ namespace IdentityService {
 
     public class Identity {
         public Guid Id { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
         public string Salt { get; set; }
         public string Phone { get; set; }
