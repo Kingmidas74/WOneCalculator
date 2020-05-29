@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AppServices\WebAPIService\WebAPIService.csproj" />
+    <ProjectReference Include="..\..\DataServices\BusinessServices\BusinessServices.csproj" />
   </ItemGroup>
 
    <ItemGroup>
